@@ -6,14 +6,14 @@ Created on Thu Jul  9 11:40:06 2026
 """
 
 import os
-import tqdm
+from tqdm import tdqm
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras import layers, models
 from tensorflow.keras.models import load_model
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2' # Hide Warnings
 
-from load_data import load_ampds_data
+from data import load_ampds_data
 
 def precompute_indices(num_timesteps, window_length, stride, train_val_test_split, seed=42):
     
@@ -44,7 +44,7 @@ def precompute_indices(num_timesteps, window_length, stride, train_val_test_spli
     test_inp = inp_idx[n_train + n_val:]
     test_out = out_idx[n_train + n_val:]
     
-    return num_windows, {
+    return {
         'train': (train_inp, train_out),
         'val': (val_inp, val_out),
         'test': (test_inp, test_out)}
@@ -176,7 +176,7 @@ def train_model(data, idx_dict, window_length, epochs, batch_size, model_filepat
         if val_loss < best_val_loss:
             best_val_loss = val_loss
             patience_counter = 0
-            model.save(model_save_filepath)
+            model.save(model_filepath)
         else:
             patience_counter += 1
             if patience_counter >= patience:
