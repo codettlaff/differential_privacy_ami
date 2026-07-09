@@ -13,8 +13,6 @@ from tensorflow.keras import layers, models
 from tensorflow.keras.models import load_model
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2' # Hide Warnings
 
-from load_data import load_ampds_data
-
 def precompute_indices(num_timesteps, window_length, stride, train_val_test_split, seed=42):
     
     num_windows = (num_timesteps - window_length + 1) // stride + 1

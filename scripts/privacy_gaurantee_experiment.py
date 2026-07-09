@@ -19,8 +19,8 @@ RESULTS_DIR = os.path.join(BASE_DIR, 'results')
 SRC_DIR = os.path.join(BASE_DIR, 'src')
 sys.path.append(SRC_DIR)
 import differential_privacy as dp
-from load_data import normalize_data, load_ampds_data
-from nilm import precompute_indices, train_model_func, test_model
+import load_data
+import nilm
 
 MODEL_NAME = 'nilm_cnn_model.keras'
 MODEL_FILEPATH = os.path.join(RESULTS_DIR, MODEL_NAME)
@@ -45,19 +45,19 @@ M = 20 # Monte Carlo Number of Trials
 def experiment(train_model=False):
     
     # Load Data
-    data = load_ampds_data(AMPDS_FILEPATH, T_LIMIT)
+    data = load_data.load_ampds_data(AMPDS_FILEPATH, T_LIMIT)
     x = data['X']
     scaling_factors = data['scaling_factors']
     num_timesteps = data['num_timesteps']
     
     # Precompute Indices for Windowing
-    num_windows, indices = precompute_indices(num_timesteps, WINDOW_LENGTH, STRIDE, TRAIN_SPLIT)
+    num_windows, indices = nilm.precompute_indices(num_timesteps, WINDOW_LENGTH, STRIDE, TRAIN_SPLIT)
     
     # Train Model
-    if train_model: train_model_func(data, indices, WINDOW_LENGTH, EPOCHS, BATCH_SIZE, MODEL_FILEPATH)
+    if train_model: nilm.train_model_func(data, indices, WINDOW_LENGTH, EPOCHS, BATCH_SIZE, MODEL_FILEPATH)
     
     # Get Baseline Results
-    baseline_results = test_model(MODEL_FILEPATH, data, indices['test'], WINDOW_LENGTH, BATCH_SIZE, scaling_factors, show=False)
+    baseline_results = nilm.test_model(MODEL_FILEPATH, data, indices['test'], WINDOW_LENGTH, BATCH_SIZE, scaling_factors, show=False)
 
     # Epsilon Trials
     eacc = {}
@@ -67,10 +67,10 @@ def experiment(train_model=False):
         for m in tqdm(range(M), desc=f"M loop (eps={epsilon})", leave=False):
             x_tilde = x
             x_tilde[:,0] = dp.make_private_load_profile(B, epsilon, x[:,0]) # Add noise to real power only.
-            x_tilde_min, x_tilde_max, x_tilde_norm = normalize_data(x_tilde)
+            x_tilde_min, x_tilde_max, x_tilde_norm = load_data.normalize_data(x_tilde)
             data['x'], data['x_norm'] = x_tilde, x_tilde_norm
             scaling_factors['x_min', 'x_max'] = x_tilde_min, x_tilde_max
-            results = test_model(MODEL_FILEPATH, data, indices['test'], WINDOW_LENGTH, BATCH_SIZE, scaling_factors, show=False)
+            results = nilm.test_model(MODEL_FILEPATH, data, indices['test'], WINDOW_LENGTH, BATCH_SIZE, scaling_factors, show=False)
             eacc_trials.append(results['eacc'])
         eacc_trials = np.array(eacc_trials)
         eacc[epsilon] = np.mean(eacc_trials, axis=0)
