@@ -6,7 +6,7 @@ Created on Thu Jul  9 11:40:06 2026
 """
 
 import os
-import tqdm
+from tqdm import tqdm
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras import layers, models
@@ -16,7 +16,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2' # Hide Warnings
 def precompute_indices(num_timesteps, window_length, stride, train_val_test_split, seed=42):
     
     num_windows = (num_timesteps - window_length + 1) // stride + 1
-    inp_idx = np.arrange(0, num_windows * stride, stride)
+    inp_idx = np.arange(0, num_windows * stride, stride)
     center_offset = window_length // 2
     out_idx = inp_idx + center_offset
     
@@ -174,7 +174,7 @@ def train_model(data, idx_dict, window_length, epochs, batch_size, model_filepat
         if val_loss < best_val_loss:
             best_val_loss = val_loss
             patience_counter = 0
-            model.save(model_save_filepath)
+            model.save(model_filepath)
         else:
             patience_counter += 1
             if patience_counter >= patience:

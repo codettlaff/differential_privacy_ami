@@ -42,11 +42,11 @@ EPSILON_VALUES = np.linspace(0.1, 1e3, 10) # Epsilon Range
 # Other Experimental Settings
 M = 20 # Monte Carlo Number of Trials
 
-def experiment(train_model=False):
+def experiment(do_train_model=False):
     
     # Load Data
     data = load_data.load_ampds_data(AMPDS_FILEPATH, T_LIMIT)
-    x = data['X']
+    x = data['x']
     scaling_factors = data['scaling_factors']
     num_timesteps = data['num_timesteps']
     
@@ -54,7 +54,7 @@ def experiment(train_model=False):
     num_windows, indices = nilm.precompute_indices(num_timesteps, WINDOW_LENGTH, STRIDE, TRAIN_SPLIT)
     
     # Train Model
-    if train_model: nilm.train_model_func(data, indices, WINDOW_LENGTH, EPOCHS, BATCH_SIZE, MODEL_FILEPATH)
+    if do_train_model: nilm.train_model(data, indices, WINDOW_LENGTH, EPOCHS, BATCH_SIZE, MODEL_FILEPATH)
     
     # Get Baseline Results
     baseline_results = nilm.test_model(MODEL_FILEPATH, data, indices['test'], WINDOW_LENGTH, BATCH_SIZE, scaling_factors, show=False)
@@ -99,5 +99,5 @@ def display_results():
         
 if __name__ == '__main__':
     
-    experiment()
+    experiment(do_train_model=True)
     display_results()

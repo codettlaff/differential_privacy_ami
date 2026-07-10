@@ -10,7 +10,7 @@ import numpy as np
 def normalize_data(x):
     x_min = x.min(axis=0, keepdims=True)
     x_max = x.max(axis=0, keepdims=True)
-    return x_min, x_max, (x - x.min) / (x_max - x_min + 1e-8)
+    return x_min, x_max, (x - x_min) / (x_max - x_min + 1e-8)
 
 def load_ampds_data(ampds_filepath, T_limit):
     
@@ -21,7 +21,7 @@ def load_ampds_data(ampds_filepath, T_limit):
     T_limit = min(T, T_limit) if T_limit is not None else T
     x, y = x[:T_limit], y[:T_limit]
     x = x[:, [0,2]] # For X data, keep only columns corresponding to P and Q
-    y = y[:T_limit] # For Y data, keep only column corresponding to P
+    y = y[:,:,0] # For Y data, keep only column corresponding to P
     
     # Normalize
     x_min, x_max, x_norm = normalize_data(x)
