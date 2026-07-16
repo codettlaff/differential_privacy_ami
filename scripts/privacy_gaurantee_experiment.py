@@ -5,7 +5,7 @@ Created on Thu Jul  9 12:27:39 2026
 @author: codett
 """
 import os
-import tqdm
+from tqdm import tqdm
 import numpy as np
 import pickle
 import sys
@@ -18,7 +18,10 @@ RESULTS_DIR = os.path.join(BASE_DIR, 'results')
 
 SRC_DIR = os.path.join(BASE_DIR, 'src')
 sys.path.append(SRC_DIR)
-import differential_privacy as dp
+import dp_utils as dp
+print(dp.__file__)
+print(dir(dp))
+
 import load_data
 import nilm
 
@@ -32,7 +35,8 @@ EXPERIMENT_RESULT_FILEPATH = os.path.join(RESULTS_DIR, EXPERIMENT_NAME + '.pkl')
 T_LIMIT = 86400 # Two Months for AMPDS Data
 TRAIN_SPLIT = [0.7, 0.15, 0.15] # Train Test Val Split
 WINDOW_LENGTH, STRIDE = 30, 1
-EPOCHS = 20
+#EPOCHS = 20
+EPOCHS = 1 # For Testing
 BATCH_SIZE = 32
 
 # Differential Privacy Settings
@@ -80,7 +84,7 @@ def experiment(do_train_model=False):
     
 def display_results():
     
-    with open(EXPERIMENT_RESULT_FILEPATH, 'wb') as f: eacc = pickle.load(f)
+    with open(EXPERIMENT_RESULT_FILEPATH, 'rb') as f: eacc = pickle.load(f)
     
     print(f"{'Appliance':<12} {'Baseline':>10}", end="")
     for epsilon in EPSILON_VALUES: print(f" {epsilon:>10}", end="")
@@ -99,5 +103,5 @@ def display_results():
         
 if __name__ == '__main__':
     
-    experiment(do_train_model=True)
+    # experiment(do_train_model=True)
     display_results()
